@@ -1,0 +1,22 @@
+<script src="lib.js"></script>
+<script>
+
+  const env = new Proxy({}, {
+    get(Target, Key){
+      if(window.Lib[Key]) return Lib[Key];
+      return console.log.bind(console, "Imlement This", arguments);
+    }
+  })
+
+  async function Load(){
+    const Binary = await fetch("main.wasm");
+    const Module = await WebAssembly.instantiate(await Binary.arrayBuffer(), {
+      env
+    });
+    window.Memory = new Int8Array(Module.instance.exports.memory.buffer);
+    window.Instance = Module;
+    Module.instance.exports._start();
+  }
+
+  Load();
+</script>
